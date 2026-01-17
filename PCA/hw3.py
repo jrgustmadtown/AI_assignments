@@ -27,22 +27,20 @@ def get_eig(S, k):
     return lamby, k_evects
 
 def get_eig_prop(S, prop):
-    # Your implementation goes here!
-    evals, evects = eigh(S, eigvals_only=False)
-    sort = np.argsort(evals)[::-1]
-    evals = evals[sort]
-    evects = evects[:, sort]
-    vari = np.trace(S)
-    exp_vari = evals / vari
-    cumvari = np.cumsum(exp_vari)
+    evals, evects = eigh(S)
+    idx = np.argsort(evals)[::-1]
+    evals = evals[idx]
+    evects = evects[:, idx]
 
-    new_sort = np.searchsorted(cumvari, prop) + 1
-    m_evals = evals[:new_sort]
-    m_evects = evects[:, :new_sort]
+    total_var = np.sum(evals)
+    cum_var = np.cumsum(evals) / total_var
 
-    lamby = np.diagflat(m_evals)
-   
-    return lamby, m_evects
+    m = np.where(cum_var >= prop)[0][0] + 1
+
+    lamby = np.diag(evals[:m])
+    U = evects[:, :m]
+
+    return lamby, U
 
 def project_and_reconstruct_image(image, U):
     # Your implementation goes here!
@@ -82,3 +80,16 @@ def perturb_image(image, U, sigma):
     im_p = np.dot(U, a_p)
 
     return im_p
+
+if __name__ == "__main__":
+    X = load_and_center_dataset("PCA/celeba_60x50.npy")
+    S = get_covariance(X)
+
+    lamby, U = get_eig_prop(S, 0.9)
+
+    image = X[0]
+    recon = project_and_reconstruct_image(image, U)
+
+    plt.imshow(recon.reshape(60, 50), cmap="gray")
+    plt.show()
+

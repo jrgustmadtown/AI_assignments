@@ -176,8 +176,29 @@ def predict_label(model, test_images, index):
 
 
 if __name__ == '__main__':
-    '''
-    Feel free to write your own test code here to exaime the correctness of your functions. 
-    Note that this part will not be graded.
-    '''
+    # 1. Set up criterion and number of epochs
     criterion = nn.CrossEntropyLoss()
+    epochs = 1  # quick test, increase later for actual training
+
+    # 2. Load training and test data
+    train_loader = get_data_loader(training=True)
+    test_loader = get_data_loader(training=False)
+
+    # 3. Build model
+    model = build_model()
+    print("Model structure:")
+    print(model)
+
+    # 4. Train the model
+    print("\nTraining for 1 epoch:")
+    train_model(model, train_loader, criterion, T=epochs)
+
+    # 5. Evaluate the model
+    print("\nEvaluating on test set:")
+    evaluate_model(model, test_loader, criterion)
+
+    # 6. Pick a test image to predict
+    test_images, _ = next(iter(test_loader))
+    print("\nPrediction for test image at index 5:")
+    predict_label(model, test_images, index=5)
+
